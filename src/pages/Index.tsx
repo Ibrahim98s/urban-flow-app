@@ -1,14 +1,61 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { WelcomeScreen } from "@/components/WelcomeScreen";
+import { AuthScreen } from "@/components/AuthScreen";
+import { Dashboard } from "@/components/Dashboard";
+
+type AppState = "welcome" | "auth" | "dashboard";
+
+interface UserData {
+  name: string;
+  email: string;
+  phone: string;
+}
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [currentScreen, setCurrentScreen] = useState<AppState>("welcome");
+  const [userData, setUserData] = useState<UserData | null>(null);
+
+  const handleGetStarted = () => {
+    setCurrentScreen("auth");
+  };
+
+  const handleAuthSuccess = (data: UserData) => {
+    setUserData(data);
+    setCurrentScreen("dashboard");
+  };
+
+  const handleLogout = () => {
+    setUserData(null);
+    setCurrentScreen("welcome");
+  };
+
+  const handleBackToWelcome = () => {
+    setCurrentScreen("welcome");
+  };
+
+  if (currentScreen === "welcome") {
+    return <WelcomeScreen onGetStarted={handleGetStarted} />;
+  }
+
+  if (currentScreen === "auth") {
+    return (
+      <AuthScreen 
+        onBack={handleBackToWelcome}
+        onAuthSuccess={handleAuthSuccess}
+      />
+    );
+  }
+
+  if (currentScreen === "dashboard" && userData) {
+    return (
+      <Dashboard 
+        userName={userData.name}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
+  return <WelcomeScreen onGetStarted={handleGetStarted} />;
 };
 
 export default Index;
